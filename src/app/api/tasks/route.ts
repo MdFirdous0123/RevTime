@@ -1,16 +1,22 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Task from '@/lib/models/Task';
+import { getUser } from '@/lib/auth';
 
 export async function GET(request: NextRequest) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
     await connectToDatabase();
     const { searchParams } = new URL(request.url);
     const date = searchParams.get('date');
     const startDate = searchParams.get('startDate');
     const endDate = searchParams.get('endDate');
 
-    let query: Record<string, unknown> = {};
+    let query: Record<string, unknown> = { userId: user.userId };
     if (date) {
       query.date = date;
     } else if (startDate && endDate) {
@@ -27,9 +33,14 @@ export async function GET(request: NextRequest) {
 
 export async function POST(request: NextRequest) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
     await connectToDatabase();
     const body = await request.json();
-    const task = await Task.create(body);
+    const task = await Task.create({ ...body, userId: user.userId });
     return NextResponse.json(task, { status: 201 });
   } catch (error) {
     console.error('POST /api/tasks error:', error);

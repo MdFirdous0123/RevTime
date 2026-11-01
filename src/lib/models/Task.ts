@@ -1,6 +1,7 @@
 import mongoose, { Schema, Document } from 'mongoose';
 
 export interface ITask extends Document {
+  userId: string;
   subject: string;
   duration: number; // in minutes
   description: string;
@@ -13,6 +14,7 @@ export interface ITask extends Document {
 
 const TaskSchema = new Schema<ITask>(
   {
+    userId: { type: String, required: true, index: true },
     subject: { type: String, required: true },
     duration: { type: Number, required: true, default: 30 },
     description: { type: String, default: '' },
@@ -25,6 +27,6 @@ const TaskSchema = new Schema<ITask>(
   }
 );
 
-TaskSchema.index({ date: 1 });
+TaskSchema.index({ userId: 1, date: 1 });
 
 export default mongoose.models.Task || mongoose.model<ITask>('Task', TaskSchema);

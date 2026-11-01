@@ -1,13 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { connectToDatabase } from '@/lib/mongodb';
 import Task from '@/lib/models/Task';
+import { getUser } from '@/lib/auth';
 
 export async function PUT(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
     await connectToDatabase();
     const { id } = await params;
     const body = await request.json();
-    const task = await Task.findByIdAndUpdate(id, body, { new: true });
+    const task = await Task.findOneAndUpdate(
+      { _id: id, userId: user.userId },
+      body,
+      { new: true }
+    );
     if (!task) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
@@ -20,9 +30,14 @@ export async function PUT(request: NextRequest, { params }: { params: Promise<{ 
 
 export async function DELETE(request: NextRequest, { params }: { params: Promise<{ id: string }> }) {
   try {
+    const user = await getUser();
+    if (!user) {
+      return NextResponse.json({ error: 'Not authenticated' }, { status: 401 });
+    }
+
     await connectToDatabase();
     const { id } = await params;
-    const task = await Task.findByIdAndDelete(id);
+    const task = await Task.findOneAndDelete({ _id: id, userId: user.userId });
     if (!task) {
       return NextResponse.json({ error: 'Task not found' }, { status: 404 });
     }
