@@ -482,9 +482,26 @@ export default function Home() {
                       {/* Timer button */}
                       {!task.completed && (
                         isTimerActive ? (
-                          <span className="text-xs font-mono text-indigo-400 bg-indigo-500/10 px-2 py-1 rounded-lg border border-indigo-500/30">
-                            ⏱ {formatTimer(timerSeconds)}
-                          </span>
+                          <div className="flex items-center gap-1.5">
+                            <span className="text-xs font-mono text-indigo-400 bg-indigo-500/10 px-2 py-1.5 rounded-lg border border-indigo-500/30 min-w-[70px] text-center">
+                              ⏱ {formatTimer(timerSeconds)}
+                            </span>
+                            {timerPaused ? (
+                              <button onClick={resumeTimer}
+                                className="text-xs text-green-400 bg-green-500/10 px-2.5 py-1.5 rounded-lg border border-green-500/30 active:scale-95 cursor-pointer font-medium">
+                                ▶
+                              </button>
+                            ) : (
+                              <button onClick={pauseTimer}
+                                className="text-xs text-yellow-400 bg-yellow-500/10 px-2.5 py-1.5 rounded-lg border border-yellow-500/30 active:scale-95 cursor-pointer font-medium">
+                                ⏸
+                              </button>
+                            )}
+                            <button onClick={stopTimer}
+                              className="text-xs text-red-400 bg-red-500/10 px-2.5 py-1.5 rounded-lg border border-red-500/30 active:scale-95 cursor-pointer font-medium">
+                              ⏹
+                            </button>
+                          </div>
                         ) : (
                           <button onClick={() => startTimer(task._id)}
                             className="text-xs text-indigo-400 bg-indigo-500/10 px-2.5 py-1.5 rounded-lg border border-indigo-500/30 active:scale-95 cursor-pointer font-medium">
